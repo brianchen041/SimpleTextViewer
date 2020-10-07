@@ -44,6 +44,12 @@ class MainActivity : AppCompatActivity() {
                 recycleView.scrollToPosition(0)
             }
         )
+        mainViewModel.fontSize.observe(
+            this,
+            Observer {
+                adapter.setFontSize(it)
+            }
+        )
     }
 
     private fun checkIntent() {
@@ -60,14 +66,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_open) {
-            mainViewModel.openTextFile(
-                this,
-                GET_TEXT
-            )
-            return true
+        when (item.itemId) {
+            R.id.action_open -> {
+                mainViewModel.openTextFile(this, GET_TEXT)
+            }
+            R.id.action_increase_font_size -> {
+                mainViewModel.increaseFontSize()
+            }
+            R.id.action_decrease_font_size -> {
+                mainViewModel.decreaseFontSize()
+            }
+            else -> {
+                return super.onOptionsItemSelected(item)
+            }
         }
-        return super.onOptionsItemSelected(item)
+        return true
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

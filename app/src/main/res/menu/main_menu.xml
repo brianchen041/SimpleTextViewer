@@ -3,6 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_open"
+        android:orderInCategory="80"
         android:title="@string/open_file"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_decrease_font_size"
+        android:icon="@drawable/ic_baseline_remove_circle_outline_24"
+        android:orderInCategory="90"
+        android:title="@string/decrease_font_size"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_increase_font_size"
+        android:icon="@drawable/ic_baseline_add_circle_outline_24"
+        android:orderInCategory="100"
+        android:title="@string/increase_font_size"
+        app:showAsAction="ifRoom" />
 </menu>

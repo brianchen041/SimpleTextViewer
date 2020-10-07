@@ -14,8 +14,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val context = application
 
-    val title = MutableLiveData<String>(context.getString(R.string.app_name))
+    val title = MutableLiveData(context.getString(R.string.app_name))
     val textList = MutableLiveData(emptyList<String>())
+    val fontSize: MutableLiveData<Float>
+
+    init {
+        val density = context.resources.displayMetrics.scaledDensity
+        val fontSizePx = context.resources.getDimension(R.dimen.default_font_size)
+        fontSize = MutableLiveData(fontSizePx / density)
+    }
 
     fun openTextFile(activity: Activity, requestCode: Int) {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
@@ -50,6 +57,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         textList.value = total
         title.value = fullName
+    }
+
+    fun increaseFontSize() {
+        fontSize.value = fontSize.value!! + 1
+    }
+
+    fun decreaseFontSize() {
+        fontSize.value = fontSize.value!! - 1
     }
 
     private fun getFullName(fullPath: String): String {

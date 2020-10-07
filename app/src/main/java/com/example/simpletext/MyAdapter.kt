@@ -13,11 +13,19 @@ class MyAdapter : RecyclerView.Adapter<MyAdapter.ViewHolder>() {
     }
 
     private val items = ArrayList<String>()
+    private var fontSize: Float? = null
 
     fun setItems(list: List<String>) {
         items.clear()
         items.addAll(list)
         notifyDataSetChanged()
+    }
+
+    fun setFontSize(size: Float) {
+        if (size > 0 && size != fontSize) {
+            fontSize = size
+            notifyDataSetChanged()
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -30,6 +38,9 @@ class MyAdapter : RecyclerView.Adapter<MyAdapter.ViewHolder>() {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.textView.text = items[position]
+        fontSize?.let {
+            holder.textView.textSize = it
+        }
     }
 
     override fun getItemCount(): Int {
