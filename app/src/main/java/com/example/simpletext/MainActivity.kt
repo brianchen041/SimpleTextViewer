@@ -5,10 +5,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.android.synthetic.main.activity_main.progressBar
 import kotlinx.android.synthetic.main.activity_main.recycleView
 
 class MainActivity : AppCompatActivity() {
@@ -48,6 +50,12 @@ class MainActivity : AppCompatActivity() {
             this,
             Observer {
                 adapter.setFontSize(it)
+            }
+        )
+        mainViewModel.isLoading.observe(
+            this,
+            Observer {
+                progressBar.visibility = if (it) View.VISIBLE else View.GONE
             }
         )
     }

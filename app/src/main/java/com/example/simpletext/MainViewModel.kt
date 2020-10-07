@@ -6,6 +6,9 @@ import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.mozilla.universalchardet.UniversalDetector
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -16,6 +19,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val title = MutableLiveData(context.getString(R.string.app_name))
     val textList = MutableLiveData(emptyList<String>())
+    val isLoading = MutableLiveData(false)
     val fontSize: MutableLiveData<Float>
 
     init {
@@ -31,32 +35,37 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun handleTextOpen(uri: Uri) {
-        val fullPath = uri.lastPathSegment ?: ""
-        val fullName = getFullName(fullPath)
-        val total = ArrayList<String>()
+        isLoading.value = true
+        viewModelScope.launch(Dispatchers.IO) {
+            val fullPath = uri.lastPathSegment ?: ""
+            val fullName = getFullName(fullPath)
+            val total = ArrayList<String>()
 
-        var charset = "UTF-8"
-        context.contentResolver.openInputStream(uri)?.use { stream ->
-            val buf = ByteArray(4096)
-            val detector = UniversalDetector()
-            var length: Int
-            while (stream.read(buf).also { length = it } > 0 && !detector.isDone) {
-                detector.handleData(buf, 0, length)
+            var charset = "UTF-8"
+            context.contentResolver.openInputStream(uri)?.use { stream ->
+                val buf = ByteArray(4096)
+                val detector = UniversalDetector()
+                var length: Int
+                while (stream.read(buf).also { length = it } > 0 && !detector.isDone) {
+                    detector.handleData(buf, 0, length)
+                }
+                detector.dataEnd()
+                charset = detector.detectedCharset
             }
-            detector.dataEnd()
-            charset = detector.detectedCharset
-        }
 
-        context.contentResolver.openInputStream(uri)?.use { stream ->
-            BufferedReader(InputStreamReader(stream, charset)).use { reader ->
-                var line: String
-                while (reader.readLine().also { line = it ?: "" } != null) {
-                    total.add(line)
+            context.contentResolver.openInputStream(uri)?.use { stream ->
+                BufferedReader(InputStreamReader(stream, charset)).use { reader ->
+                    var line: String
+                    while (reader.readLine().also { line = it ?: "" } != null) {
+                        total.add(line)
+                    }
                 }
             }
+
+            textList.postValue(total)
+            title.postValue(fullName)
+            isLoading.postValue(false)
         }
-        textList.value = total
-        title.value = fullName
     }
 
     fun increaseFontSize() {
